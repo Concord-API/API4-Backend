@@ -6,4 +6,6 @@ public interface EmployeeService {
 
     public Employee cadastrar(Employee employee);
 
+    public Employee atualizar(Long id, Employee employee);
+
 }

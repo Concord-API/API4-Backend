@@ -17,4 +17,18 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.save(employee);
     }
 
+    @Override
+    public Employee atualizar(Long id, Employee employee) {
+        Employee existente = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee não encontrado com id: " + id));
+        
+        existente.setName(employee.getName());
+        existente.setAdmin(employee.isAdmin());
+        existente.setActive(employee.isActive());
+        existente.setEmail(employee.getEmail());
+        existente.setPassword(employee.getPassword());
+        
+        return employeeRepository.save(existente);
+    }
+
 }
