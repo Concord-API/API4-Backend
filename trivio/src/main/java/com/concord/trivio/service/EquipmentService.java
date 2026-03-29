@@ -1,9 +1,9 @@
 package com.concord.trivio.service;
 
 import com.concord.trivio.entity.Equipment;
+import java.util.List;
 
 public interface EquipmentService {
-
-    public Equipment cadastrar(Equipment equipment);
-
+    public List<Equipment> listar();
+    public Equipment buscarPorId(Long id);
 }

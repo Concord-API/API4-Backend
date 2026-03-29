@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import com.concord.trivio.entity.Equipment;
 import com.concord.trivio.service.EquipmentService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/equipments")
 public class EquipmentController {
@@ -15,10 +17,15 @@ public class EquipmentController {
     @Autowired
     private EquipmentService equipmentService;
 
-    @PostMapping
-    public ResponseEntity<Equipment> cadastrar(@RequestBody Equipment equipment) {
-        Equipment salvo = equipmentService.cadastrar(equipment);
-        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    @GetMapping
+    public ResponseEntity<List<Equipment>> listar() {
+        List<Equipment> lista = equipmentService.listar();
+        return ResponseEntity.status(HttpStatus.OK).body(lista);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Equipment> buscarPorId(@PathVariable Long id) {
+        Equipment equipment = equipmentService.buscarPorId(id);
+        return ResponseEntity.status(HttpStatus.OK).body(equipment);
+    }
 }
