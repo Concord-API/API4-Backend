@@ -4,6 +4,8 @@ import com.concord.trivio.entity.Equipment;
 
 public interface EquipmentService {
 
+    public Equipment alterar(Long id, Equipment equipment);
+
     public Equipment cadastrar(Equipment equipment);
 
 }
