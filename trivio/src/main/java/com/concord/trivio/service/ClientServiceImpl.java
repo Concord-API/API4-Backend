@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import com.concord.trivio.entity.Client;
 import com.concord.trivio.repository.ClientRepository;
 
+import java.util.List;
+
 @Service
 public class ClientServiceImpl implements ClientService {
 
@@ -13,7 +15,13 @@ public class ClientServiceImpl implements ClientService {
     private ClientRepository clientRepository;
 
     @Override
-    public Client cadastrar(Client client) {
-        return clientRepository.save(client);
+    public List<Client> listar() {
+        return clientRepository.findAll();
+    }
+
+    @Override
+    public Client buscarPorId(Long id) {
+        return clientRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Client não encontrado"));
     }
 }

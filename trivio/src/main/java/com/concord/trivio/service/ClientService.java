@@ -1,7 +1,9 @@
 package com.concord.trivio.service;
 
 import com.concord.trivio.entity.Client;
+import java.util.List;
 
 public interface ClientService {
-    public Client cadastrar(Client client);
+    public List<Client> listar();
+    public Client buscarPorId(Long id);
 }

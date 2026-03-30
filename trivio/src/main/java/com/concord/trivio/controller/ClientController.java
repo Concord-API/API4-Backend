@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import com.concord.trivio.entity.Client;
 import com.concord.trivio.service.ClientService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/clients")
 public class ClientController {
@@ -15,9 +17,15 @@ public class ClientController {
     @Autowired
     private ClientService clientService;
 
-    @PostMapping
-    public ResponseEntity<Client> cadastrar(@RequestBody Client client) {
-        Client salvo = clientService.cadastrar(client);
-        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    @GetMapping
+    public ResponseEntity<List<Client>> listar() {
+        List<Client> lista = clientService.listar();
+        return ResponseEntity.status(HttpStatus.OK).body(lista);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Client> buscarPorId(@PathVariable Long id) {
+        Client client = clientService.buscarPorId(id);
+        return ResponseEntity.status(HttpStatus.OK).body(client);
     }
 }
