@@ -17,6 +17,7 @@ public class ClientController {
     @Autowired
     private ClientService clientService;
 
+
     @GetMapping
     public ResponseEntity<List<Client>> listar() {
         List<Client> lista = clientService.listar();
@@ -27,5 +28,17 @@ public class ClientController {
     public ResponseEntity<Client> buscarPorId(@PathVariable Long id) {
         Client client = clientService.buscarPorId(id);
         return ResponseEntity.status(HttpStatus.OK).body(client);
+    }
+  
+    @PatchMapping("/{id}")
+    public ResponseEntity<Client> alterar(@PathVariable Long id, @RequestBody Client client) {
+        Client atualizado = clientService.alterar(id, client);
+        return ResponseEntity.status(HttpStatus.OK).body(atualizado);
+    }
+  
+    @PostMapping
+    public ResponseEntity<Client> cadastrar(@RequestBody Client client) {
+        Client salvo = clientService.cadastrar(client);
+        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
     }
 }

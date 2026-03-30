@@ -18,6 +18,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/clients").permitAll()
                 .requestMatchers(HttpMethod.GET, "/clients/**").permitAll()
+                .requestMatchers(HttpMethod.PATCH, "/clients/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/clients").permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(basic -> {});

@@ -24,4 +24,20 @@ public class ClientServiceImpl implements ClientService {
         return clientRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Client não encontrado"));
     }
+
+    public Client alterar(Long id, Client client) {
+        Client existente = clientRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Client não encontrado"));
+        existente.setName(client.getName());
+        existente.setCpf(client.getCpf());
+        existente.setCnpj(client.getCnpj());
+        existente.setEmail(client.getEmail());
+        existente.setPhone(client.getPhone());
+        existente.setActive(client.getActive());
+        return clientRepository.save(existente);
+    }
+  
+    public Client cadastrar(Client client) {
+        return clientRepository.save(client);
+    }
 }
