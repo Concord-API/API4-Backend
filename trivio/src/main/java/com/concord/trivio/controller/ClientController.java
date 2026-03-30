@@ -20,4 +20,10 @@ public class ClientController {
         Client atualizado = clientService.alterar(id, client);
         return ResponseEntity.status(HttpStatus.OK).body(atualizado);
     }
+  
+    @PostMapping
+    public ResponseEntity<Client> cadastrar(@RequestBody Client client) {
+        Client salvo = clientService.cadastrar(client);
+        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    }
 }

@@ -13,6 +13,7 @@ public class ClientServiceImpl implements ClientService {
     private ClientRepository clientRepository;
 
     @Override
+
     public Client alterar(Long id, Client client) {
         Client existente = clientRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Client não encontrado"));
@@ -23,5 +24,9 @@ public class ClientServiceImpl implements ClientService {
         existente.setPhone(client.getPhone());
         existente.setActive(client.getActive());
         return clientRepository.save(existente);
+    }
+  
+    public Client cadastrar(Client client) {
+        return clientRepository.save(client);
     }
 }
