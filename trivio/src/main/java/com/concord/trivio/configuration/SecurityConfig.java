@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/clients/**").permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/clients/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/clients").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(basic -> {});
