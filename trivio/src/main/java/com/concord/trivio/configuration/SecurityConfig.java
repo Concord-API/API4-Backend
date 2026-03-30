@@ -16,13 +16,11 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/employees").permitAll()
-                .requestMatchers(HttpMethod.POST, "/equipments").permitAll()
+                .requestMatchers(HttpMethod.GET, "/equipments").permitAll()
+                .requestMatchers(HttpMethod.GET, "/equipments/**").permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(basic -> {});
-
         return http.build();
     }
-
 }
