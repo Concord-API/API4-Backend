@@ -18,9 +18,18 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/equipments").permitAll()
                 .requestMatchers(HttpMethod.GET, "/equipments/**").permitAll()
+                .requestMatchers(HttpMethod.PATCH, "/equipments/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/equipments").permitAll()
+                .requestMatchers(HttpMethod.GET, "/clients").permitAll()
+                .requestMatchers(HttpMethod.GET, "/clients/**").permitAll()
+                .requestMatchers(HttpMethod.PATCH, "/clients/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/clients").permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(basic -> {});
         return http.build();
     }
 }
+  
+
+
