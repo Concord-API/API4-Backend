@@ -15,10 +15,17 @@ public class EquipmentController {
     @Autowired
     private EquipmentService equipmentService;
 
+
     @PatchMapping("/{id}")
     public ResponseEntity<Equipment> alterar(@PathVariable Long id, @RequestBody Equipment equipment) {
         Equipment atualizado = equipmentService.alterar(id, equipment);
         return ResponseEntity.status(HttpStatus.OK).body(atualizado);
+    }
+
+    @PostMapping
+    public ResponseEntity<Equipment> cadastrar(@RequestBody Equipment equipment) {
+        Equipment salvo = equipmentService.cadastrar(equipment);
+        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
     }
 
 }

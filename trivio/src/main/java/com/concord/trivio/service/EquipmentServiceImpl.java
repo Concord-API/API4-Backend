@@ -14,7 +14,6 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     public Equipment alterar(Long id, Equipment equipment) {
-
         Equipment existente = equipmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Equipment não encontrado"));
 
@@ -24,6 +23,10 @@ public class EquipmentServiceImpl implements EquipmentService {
         existente.setActive(equipment.getActive());
 
         return equipmentRepository.save(existente);
+}
+  
+    public Equipment cadastrar(Equipment equipment) {
+        return equipmentRepository.save(equipment);
     }
 
 }
