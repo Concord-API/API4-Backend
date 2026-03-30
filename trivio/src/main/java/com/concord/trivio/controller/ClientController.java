@@ -15,6 +15,12 @@ public class ClientController {
     @Autowired
     private ClientService clientService;
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<Client> alterar(@PathVariable Long id, @RequestBody Client client) {
+        Client atualizado = clientService.alterar(id, client);
+        return ResponseEntity.status(HttpStatus.OK).body(atualizado);
+    }
+  
     @PostMapping
     public ResponseEntity<Client> cadastrar(@RequestBody Client client) {
         Client salvo = clientService.cadastrar(client);
