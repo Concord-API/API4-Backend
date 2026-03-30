@@ -23,6 +23,18 @@ public class EquipmentController {
         return ResponseEntity.status(HttpStatus.OK).body(lista);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<Equipment> alterar(@PathVariable Long id, @RequestBody Equipment equipment) {
+        Equipment atualizado = equipmentService.alterar(id, equipment);
+        return ResponseEntity.status(HttpStatus.OK).body(atualizado);
+    }
+
+    @PostMapping
+    public ResponseEntity<Equipment> cadastrar(@RequestBody Equipment equipment) {
+        Equipment salvo = equipmentService.cadastrar(equipment);
+        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Equipment> buscarPorId(@PathVariable Long id) {
         Equipment equipment = equipmentService.buscarPorId(id);
