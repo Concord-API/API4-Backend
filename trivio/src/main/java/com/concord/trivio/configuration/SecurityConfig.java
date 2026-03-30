@@ -25,4 +25,7 @@ public class SecurityConfig {
             .httpBasic(basic -> {});
         return http.build();
     }
+  
 }
+
+
