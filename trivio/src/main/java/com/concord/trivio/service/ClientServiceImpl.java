@@ -1,33 +1,32 @@
 package com.concord.trivio.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.server.ResponseStatusException;
 import com.concord.trivio.entity.Client;
 import com.concord.trivio.repository.ClientRepository;
-
-import java.util.List;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ClientServiceImpl implements ClientService {
 
-    @Autowired
     private ClientRepository clientRepository;
 
-    @Override
-    public List<Client> listar() {
-        return clientRepository.findAll();
+    public ClientServiceImpl(ClientRepository clientRepository) {
+        this.clientRepository = clientRepository;
     }
 
     @Override
-    public Client buscarPorId(Long id) {
-        return clientRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Client não encontrado"));
+    @Transactional
+    public Client cadastrar(Client client) {
+        return clientRepository.save(client);
     }
 
+    @Override
+    @Transactional
     public Client alterar(Long id, Client client) {
-        Client existente = clientRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Client não encontrado"));
+        Client existente = buscarPorId(id);
         existente.setName(client.getName());
         existente.setCpf(client.getCpf());
         existente.setCnpj(client.getCnpj());
@@ -36,8 +35,15 @@ public class ClientServiceImpl implements ClientService {
         existente.setActive(client.getActive());
         return clientRepository.save(existente);
     }
-  
-    public Client cadastrar(Client client) {
-        return clientRepository.save(client);
+
+    @Override
+    public List<Client> listar() {
+        return clientRepository.findAll();
+    }
+
+    @Override
+    public Client buscarPorId(Long id) {
+        return clientRepository.findById(id).orElseThrow(() ->
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
     }
 }

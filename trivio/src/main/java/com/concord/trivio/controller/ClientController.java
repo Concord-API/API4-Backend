@@ -1,8 +1,6 @@
 package com.concord.trivio.controller;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.concord.trivio.entity.Client;
 import com.concord.trivio.service.ClientService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -24,8 +20,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/clients")
 public class ClientController {
 
-    @Autowired
     private ClientService clientService;
+
+    public ClientController(ClientService clientService) {
+        this.clientService = clientService;
+    }
 
     @Operation(summary = "Lista todos os clientes")
     @GetMapping
@@ -40,14 +39,14 @@ public class ClientController {
         Client client = clientService.buscarPorId(id);
         return ResponseEntity.status(HttpStatus.OK).body(client);
     }
-  
+
     @Operation(summary = "Atualiza um cliente existente")
     @PatchMapping("/{id}")
     public ResponseEntity<Client> alterar(@PathVariable Long id, @RequestBody Client client) {
         Client atualizado = clientService.alterar(id, client);
         return ResponseEntity.status(HttpStatus.OK).body(atualizado);
     }
-  
+
     @Operation(summary = "Cadastra um novo cliente")
     @PostMapping
     public ResponseEntity<Client> cadastrar(@RequestBody Client client) {
