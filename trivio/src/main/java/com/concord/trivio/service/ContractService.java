@@ -3,15 +3,15 @@ package com.concord.trivio.service;
 import java.util.List;
 
 import com.concord.trivio.dto.ContractRequest;
-import com.concord.trivio.entity.Contract;
+import com.concord.trivio.dto.ContractResponseDTO;
 
 public interface ContractService {
 
-    public Contract cadastrar(ContractRequest contractRequest);
+    public ContractResponseDTO cadastrar(ContractRequest contractRequest);
 
-    public Contract atualizar(Long id, ContractRequest contractRequest);
+    public ContractResponseDTO atualizar(Long id, ContractRequest contractRequest);
 
-    public List<Contract> listar();
+    public List<ContractResponseDTO> listar();
 
-    public Contract buscarPorId(Long id);
+    public ContractResponseDTO buscarPorId(Long id);
 }
