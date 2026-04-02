@@ -17,24 +17,34 @@ public class ClientServiceImpl implements ClientService {
         this.clientRepository = clientRepository;
     }
 
-    @Override
-    @Transactional
-    public Client cadastrar(Client client) {
-        return clientRepository.save(client);
+   @Override
+@Transactional
+public Client cadastrar(Client client) {
+    if (client == null ||
+            client.getName() == null ||
+            client.getEmail() == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cliente com informações inválidas");
     }
+    return clientRepository.save(client);
+}
 
-    @Override
-    @Transactional
-    public Client alterar(Long id, Client client) {
-        Client existente = buscarPorId(id);
-        existente.setName(client.getName());
-        existente.setCpf(client.getCpf());
-        existente.setCnpj(client.getCnpj());
-        existente.setEmail(client.getEmail());
-        existente.setPhone(client.getPhone());
-        existente.setActive(client.getActive());
-        return clientRepository.save(existente);
+@Override
+@Transactional
+public Client atualizar(Long id, Client client) {
+    Client existente = buscarPorId(id);
+    if (client == null ||
+            client.getName() == null ||
+            client.getEmail() == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cliente com informações inválidas");
     }
+    existente.setName(client.getName());
+    existente.setCpf(client.getCpf());
+    existente.setCnpj(client.getCnpj());
+    existente.setEmail(client.getEmail());
+    existente.setPhone(client.getPhone());
+    existente.setActive(client.getActive());
+    return clientRepository.save(existente);
+}
 
     @Override
     public List<Client> listar() {
