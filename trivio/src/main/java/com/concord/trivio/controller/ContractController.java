@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.concord.trivio.dto.ContractRequest;
-import com.concord.trivio.entity.Contract;
+import com.concord.trivio.dto.ContractResponseDTO;
 import com.concord.trivio.service.ContractService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,15 +33,15 @@ public class ContractController {
 
     @Operation(summary = "Lista todos os contratos")
     @GetMapping
-    public ResponseEntity<List<Contract>> listar() {
-        List<Contract> lista = contractService.listar();
+    public ResponseEntity<List<ContractResponseDTO>> listar() {
+        List<ContractResponseDTO> lista = contractService.listar();
         return ResponseEntity.status(HttpStatus.OK).body(lista);
     }
 
     @Operation(summary = "Busca um contrato por ID")
     @GetMapping("/{id}")
-    public ResponseEntity<Contract> buscarPorId(@PathVariable Long id) {
-        Contract contract = contractService.buscarPorId(id);
+    public ResponseEntity<ContractResponseDTO> buscarPorId(@PathVariable Long id) {
+        ContractResponseDTO contract = contractService.buscarPorId(id);
         return ResponseEntity.status(HttpStatus.OK).body(contract);
     }
 
