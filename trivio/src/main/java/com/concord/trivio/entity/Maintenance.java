@@ -36,7 +36,7 @@ public class Maintenance {
     @JoinColumn(name = "contract_id", nullable = false)
     private Contract contract;
 
-    @Column(name = "date", nullable = false)
+    @Column(name = "maintenance_date", nullable = false)
     private LocalDate date;
 
     @Column(name = "preventive", nullable = false)
