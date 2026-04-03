@@ -43,6 +43,10 @@ public class Maintenance {
     private Boolean preventive;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 20)
+    private MaintenanceType type;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private MaintenanceStatus status;
 
