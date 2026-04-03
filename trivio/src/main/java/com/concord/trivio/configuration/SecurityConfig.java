@@ -28,6 +28,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/contracts/**").permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/contracts/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/contracts").permitAll()
+                .requestMatchers(HttpMethod.GET, "/employees").permitAll()
+                .requestMatchers(HttpMethod.GET, "/employees/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/employees").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/employees/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated()
             )
@@ -35,6 +39,6 @@ public class SecurityConfig {
         return http.build();
     }
 }
-  
+
 
 
