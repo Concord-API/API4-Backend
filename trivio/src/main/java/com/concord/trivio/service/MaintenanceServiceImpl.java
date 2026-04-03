@@ -60,9 +60,43 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         return buscarPorId(maintenance.getId()); 
     }
 
+    @Override
+    @Transactional
+    public MaintenanceResponseDTO atualizar(Long id, MaintenanceRequest maintenanceRequest) {
+        Maintenance existente = buscarEntidadePorId(id);
+
+        if (maintenanceRequest == null ||
+            maintenanceRequest.getDate() == null ||
+            maintenanceRequest.getPreventive() == null ||
+            maintenanceRequest.getType() == null ||
+            maintenanceRequest.getStatus() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manutenção com informações inválidas");
+        }
+
+        if (maintenanceRequest.getContractId() != null) {
+            existente.setContract(buscarContractPorId(maintenanceRequest.getContractId()));
+        }
+        existente.setDate(maintenanceRequest.getDate());
+        existente.setPreventive(maintenanceRequest.getPreventive());
+        existente.setType(maintenanceRequest.getType());
+        existente.setStatus(maintenanceRequest.getStatus());
+
+        existente = maintenanceRepository.save(existente);
+
+        maintenanceEmployeeService.sincronizarEmployees(existente, maintenanceRequest.getEmployeeIds());
+
+        return buscarPorId(existente.getId());
+    }
+
     public MaintenanceResponseDTO buscarPorId(Long id) {
         Maintenance maintenance = buscarEntidadeComEmployees(id);
         return toDto(maintenance);
+    }
+
+    private Maintenance buscarEntidadePorId(Long id) {
+        return maintenanceRepository.findById(id).orElseThrow(() -> 
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
+        );
     }
 
     private Maintenance buscarEntidadeComEmployees(Long id) {

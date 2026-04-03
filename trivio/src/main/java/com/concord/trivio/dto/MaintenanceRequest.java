@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MaintenanceRequest {
 
-    @NotNull
     private Long contractId;
 
     @NotNull
