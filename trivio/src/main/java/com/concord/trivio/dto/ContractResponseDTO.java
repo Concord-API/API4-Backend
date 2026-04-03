@@ -1,9 +1,11 @@
 package com.concord.trivio.dto;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
-import jakarta.validation.constraints.NotNull;
+import com.concord.trivio.entity.Equipment;
+import com.concord.trivio.entity.Client;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,21 +13,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContractRequest {
+public class ContractResponseDTO {
 
-    @NotNull
-    private Long clientId;
-
-    @NotNull
+    private Long id;
+    private Client client;
     private LocalDate initialDate;
-
-    @NotNull
     private LocalDate finalDate;
-
-    @NotNull
     private Long recurrenceMaintenance;
-
-    private Boolean active = true;
-
-    private Set<Long> equipmentIds;
+    private Boolean active;
+    private List<Equipment> equipments;
 }
