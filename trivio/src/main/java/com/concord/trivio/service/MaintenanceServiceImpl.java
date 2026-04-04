@@ -88,9 +88,17 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         return buscarPorId(existente.getId());
     }
 
+    @Override
     public MaintenanceResponseDTO buscarPorId(Long id) {
         Maintenance maintenance = buscarEntidadeComEmployees(id);
         return toDto(maintenance);
+    }
+
+    @Override
+    public List<MaintenanceResponseDTO> listar() {
+        return maintenanceRepository.findAllWithEmployees().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     private Maintenance buscarEntidadePorId(Long id) {
