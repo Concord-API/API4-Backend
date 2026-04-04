@@ -23,7 +23,7 @@ public class MaintenanceEmployeeServiceImpl implements MaintenanceEmployeeServic
 
     @Override
     public Set<MaintenanceEmployee> buscarPorMaintenanceId(Long maintenanceId) {
-        return maintenanceEmployeeRepository.findByMaintenanceId(maintenanceId);
+        return maintenanceEmployeeRepository.findByMaintenance_Id(maintenanceId);
     }
 
     @Override
