@@ -32,4 +32,23 @@ public class RequirementServiceImpl implements RequirementService {
 
         return requirementRepository.save(requirement);
     }
+
+    @Override
+    @Transactional
+    public Requirement atualizar(Long id, RequirementRequest request) {
+        Requirement existente = requirementRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Requisito não encontrado"));
+
+        if (request.getName() != null && !request.getName().isBlank()) {
+            existente.setName(request.getName());
+        }
+        if (request.getDescription() != null) {
+            existente.setDescription(request.getDescription());
+        }
+        if (request.getActive() != null) {
+            existente.setActive(request.getActive());
+        }
+
+        return requirementRepository.save(existente);
+    }
 }
