@@ -10,5 +10,5 @@ import java.util.Set;
 @Repository
 public interface MaintenanceEmployeeRepository extends JpaRepository<MaintenanceEmployee, Long> {
     
-    Set<MaintenanceEmployee> findByMaintenanceId(Long maintenanceId);
+    Set<MaintenanceEmployee> findByMaintenance_Id(Long maintenanceId);
 }
