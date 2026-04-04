@@ -1,5 +1,7 @@
 package com.concord.trivio.service;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,5 +52,16 @@ public class RequirementServiceImpl implements RequirementService {
         }
 
         return requirementRepository.save(existente);
+    }
+
+    @Override
+    public List<Requirement> listar() {
+        return requirementRepository.findAll();
+    }
+
+    @Override
+    public Requirement buscarPorId(Long id) {
+        return requirementRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Requisito não encontrado"));
     }
 }
