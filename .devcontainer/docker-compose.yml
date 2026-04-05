@@ -1,0 +1,30 @@
+services:
+  app:
+    container_name: trivio-api
+    image: mcr.microsoft.com/devcontainers/java:21
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    depends_on:
+      oracle:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  oracle:
+    image: gvenzl/oracle-free:23.3-slim
+    container_name: trivio-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      APP_USER: ${APP_USER}
+      APP_USER_PASSWORD: ${APP_USER_PASSWORD}
+    ports:
+      - "1521:1521"
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
