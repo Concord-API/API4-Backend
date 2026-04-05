@@ -13,7 +13,9 @@ import com.concord.trivio.dto.ContractResponseDTO;
 import com.concord.trivio.entity.Client;
 import com.concord.trivio.entity.Contract;
 import com.concord.trivio.entity.Equipment;
+import com.concord.trivio.entity.Requirement;
 import com.concord.trivio.entity.ContractEquipment;
+import com.concord.trivio.entity.ContractRequirement;
 import com.concord.trivio.repository.ContractRepository;
 
 import jakarta.transaction.Transactional;
@@ -24,13 +26,16 @@ public class ContractServiceImpl implements ContractService {
     private ContractRepository contractRepository;
     private ClientService clientService;
     private ContractEquipmentService contractEquipmentService;
+    private ContractRequirementService contractRequirementService;
 
-    public ContractServiceImpl(ContractRepository contractRepository, 
-                               ClientService clientService, 
-                               ContractEquipmentService contractEquipmentService) {
+    public ContractServiceImpl(ContractRepository contractRepository,
+                               ClientService clientService,
+                               ContractEquipmentService contractEquipmentService,
+                               ContractRequirementService contractRequirementService) {
         this.contractRepository = contractRepository;
         this.clientService = clientService;
         this.contractEquipmentService = contractEquipmentService;
+        this.contractRequirementService = contractRequirementService;
     }
 
     @Override
@@ -54,15 +59,16 @@ public class ContractServiceImpl implements ContractService {
         contract = contractRepository.save(contract);
 
         contractEquipmentService.sincronizarEquipamentos(contract, contractRequest.getEquipmentIds());
+        contractRequirementService.sincronizarRequisitos(contract, contractRequest.getRequirementIds());
 
-        return buscarPorId(contract.getId()); 
+        return buscarPorId(contract.getId());
     }
 
     @Override
     @Transactional
     public ContractResponseDTO atualizar(Long id, ContractRequest contractRequest) {
         Contract existente = buscarEntidadePorId(id);
-        
+
         if (contractRequest == null ||
             contractRequest.getClientId() == null ||
             contractRequest.getInitialDate() == null ||
@@ -80,6 +86,7 @@ public class ContractServiceImpl implements ContractService {
         existente = contractRepository.save(existente);
 
         contractEquipmentService.sincronizarEquipamentos(existente, contractRequest.getEquipmentIds());
+        contractRequirementService.sincronizarRequisitos(existente, contractRequest.getRequirementIds());
 
         return buscarPorId(existente.getId());
     }
@@ -130,17 +137,26 @@ public class ContractServiceImpl implements ContractService {
         dto.setRecurrenceMaintenance(contract.getRecurrenceMaintenance());
         dto.setActive(contract.getActive());
 
-        Set<ContractEquipment> links = contract.getEquipments();
-        
-        if (links != null) {
-            List<Equipment> equipamentosAtivos = links.stream()
+        Set<ContractEquipment> equipLinks = contract.getEquipments();
+        if (equipLinks != null) {
+            List<Equipment> equipamentosAtivos = equipLinks.stream()
                 .filter(ContractEquipment::getActive)
                 .map(ContractEquipment::getEquipment)
                 .collect(Collectors.toList());
-                
             dto.setEquipments(equipamentosAtivos);
         } else {
             dto.setEquipments(List.of());
+        }
+
+        Set<ContractRequirement> reqLinks = contractRequirementService.buscarPorContratoId(contract.getId());
+        if (reqLinks != null) {
+            List<Requirement> requisitosAtivos = reqLinks.stream()
+                .filter(ContractRequirement::getActive)
+                .map(ContractRequirement::getRequirement)
+                .collect(Collectors.toList());
+            dto.setRequirements(requisitosAtivos);
+        } else {
+            dto.setRequirements(List.of());
         }
 
         return dto;

@@ -28,4 +28,6 @@ public class ContractRequest {
     private Boolean active = true;
 
     private Set<Long> equipmentIds;
+
+    private Set<Long> requirementIds;
 }
