@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.concord.trivio.entity.Equipment;
+import com.concord.trivio.entity.Requirement;
 import com.concord.trivio.entity.Client;
 
 import lombok.AllArgsConstructor;
@@ -22,4 +23,5 @@ public class ContractResponseDTO {
     private Long recurrenceMaintenance;
     private Boolean active;
     private List<Equipment> equipments;
+    private List<Requirement> requirements;
 }
