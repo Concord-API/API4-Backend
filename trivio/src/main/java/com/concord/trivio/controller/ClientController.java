@@ -49,7 +49,7 @@ public class ClientController {
     @PatchMapping("/{id}")
     public ResponseEntity<Void> atualizar(@PathVariable Long id, @Valid @RequestBody Client client) {
         clientService.atualizar(id, client);
-        return ResponseEntity.status(204).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @Operation(summary = "Cadastra um novo cliente")

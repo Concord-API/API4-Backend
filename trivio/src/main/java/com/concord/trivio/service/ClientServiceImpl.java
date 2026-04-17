@@ -11,7 +11,7 @@ import jakarta.transaction.Transactional;
 @Service
 public class ClientServiceImpl implements ClientService {
 
-    private ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
 
     public ClientServiceImpl(ClientRepository clientRepository) {
         this.clientRepository = clientRepository;
@@ -21,10 +21,11 @@ public class ClientServiceImpl implements ClientService {
 @Transactional
 public Client cadastrar(Client client) {
     if (client == null ||
-            client.getName() == null ||
-            client.getEmail() == null) {
+            client.getName() == null || client.getName().isBlank() ||
+            client.getEmail() == null || client.getEmail().isBlank()) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cliente com informações inválidas");
     }
+    client.setActive(definirActive(client.getActive()));
     return clientRepository.save(client);
 }
 
@@ -33,8 +34,8 @@ public Client cadastrar(Client client) {
 public Client atualizar(Long id, Client client) {
     Client existente = buscarPorId(id);
     if (client == null ||
-            client.getName() == null ||
-            client.getEmail() == null) {
+            client.getName() == null || client.getName().isBlank() ||
+            client.getEmail() == null || client.getEmail().isBlank()) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cliente com informações inválidas");
     }
     existente.setName(client.getName());
@@ -42,7 +43,7 @@ public Client atualizar(Long id, Client client) {
     existente.setCnpj(client.getCnpj());
     existente.setEmail(client.getEmail());
     existente.setPhone(client.getPhone());
-    existente.setActive(client.getActive());
+    existente.setActive(definirActive(client.getActive()));
     return clientRepository.save(existente);
 }
 
@@ -55,5 +56,9 @@ public Client atualizar(Long id, Client client) {
     public Client buscarPorId(Long id) {
         return clientRepository.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+    }
+
+    private Boolean definirActive(Boolean active) {
+        return !Boolean.FALSE.equals(active);
     }
 }

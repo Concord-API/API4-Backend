@@ -38,5 +38,5 @@ public class Client {
     private String phone;
 
     @Column(name = "active", length = 1)
-    private Boolean active;
+    private Boolean active = true;
 }

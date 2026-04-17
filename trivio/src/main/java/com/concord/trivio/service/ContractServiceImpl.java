@@ -23,10 +23,10 @@ import jakarta.transaction.Transactional;
 @Service
 public class ContractServiceImpl implements ContractService {
 
-    private ContractRepository contractRepository;
-    private ClientService clientService;
-    private ContractEquipmentService contractEquipmentService;
-    private ContractRequirementService contractRequirementService;
+    private final ContractRepository contractRepository;
+    private final ClientService clientService;
+    private final ContractEquipmentService contractEquipmentService;
+    private final ContractRequirementService contractRequirementService;
 
     public ContractServiceImpl(ContractRepository contractRepository,
                                ClientService clientService,
@@ -50,7 +50,7 @@ public class ContractServiceImpl implements ContractService {
         }
 
         Contract contract = new Contract();
-        contract.setClient(buscarClientPorId(contractRequest.getClientId()));
+        contract.setClient(buscarClientePorId(contractRequest.getClientId()));
         contract.setInitialDate(contractRequest.getInitialDate());
         contract.setFinalDate(contractRequest.getFinalDate());
         contract.setRecurrenceMaintenance(contractRequest.getRecurrenceMaintenance());
@@ -77,7 +77,7 @@ public class ContractServiceImpl implements ContractService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Contrato com informações inválidas");
         }
 
-        existente.setClient(buscarClientPorId(contractRequest.getClientId()));
+        existente.setClient(buscarClientePorId(contractRequest.getClientId()));
         existente.setInitialDate(contractRequest.getInitialDate());
         existente.setFinalDate(contractRequest.getFinalDate());
         existente.setRecurrenceMaintenance(contractRequest.getRecurrenceMaintenance());
@@ -116,10 +116,10 @@ public class ContractServiceImpl implements ContractService {
         );
     }
 
-    private Client buscarClientPorId(Long id) {
+    private Client buscarClientePorId(Long id) {
         try {
             return clientService.buscarPorId(id);
-        } catch (RuntimeException ex) {
+        } catch (ResponseStatusException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado");
         }
     }

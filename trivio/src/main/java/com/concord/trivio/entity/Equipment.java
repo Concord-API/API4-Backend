@@ -33,7 +33,7 @@ public class Equipment {
     private String manufacturer;
 
     @Column(name = "active", length = 1)
-    private Boolean active;
+    private Boolean active = true;
 
     
 }
