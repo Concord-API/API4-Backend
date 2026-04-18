@@ -23,5 +23,6 @@ public class MaintenanceResponseDTO {
     private Boolean preventive;
     private MaintenanceType type;
     private MaintenanceStatus status;
+    private Boolean active;
     private List<Employee> employees;
 }

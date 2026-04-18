@@ -48,12 +48,12 @@ public class MaintenanceController {
     @Operation(summary = "Lista todas as manutenções")
     @GetMapping
     public ResponseEntity<List<MaintenanceResponseDTO>> listar() {
-        return ResponseEntity.ok(maintenanceService.listar());
+        return ResponseEntity.status(HttpStatus.OK).body(maintenanceService.listar());
     }
 
     @Operation(summary = "Busca uma manutenção pelo ID")
     @GetMapping("/{id}")
     public ResponseEntity<MaintenanceResponseDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(maintenanceService.buscarPorId(id));
+        return ResponseEntity.status(HttpStatus.OK).body(maintenanceService.buscarPorId(id));
     }
 }

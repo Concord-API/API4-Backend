@@ -30,5 +30,7 @@ public class MaintenanceRequest {
     @NotNull
     private MaintenanceStatus status;
 
+    private Boolean active = true;
+
     private Set<Long> employeeIds;
 }
