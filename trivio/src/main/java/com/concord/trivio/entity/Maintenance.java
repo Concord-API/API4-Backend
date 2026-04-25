@@ -50,6 +50,9 @@ public class Maintenance {
     @Column(name = "status", nullable = false, length = 20)
     private MaintenanceStatus status;
 
+    @Column(name = "active", nullable = false)
+    private Boolean active = true;
+
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @OneToMany(mappedBy = "maintenance", cascade = jakarta.persistence.CascadeType.ALL)

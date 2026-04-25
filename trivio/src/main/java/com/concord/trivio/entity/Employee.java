@@ -30,7 +30,7 @@ public class Employee {
     private boolean admin;
 
     @Column(name = "active")
-    private boolean active;
+    private Boolean active = true;
 
     @Column(name = "email", nullable = false, length = 100)
     private String email;

@@ -22,9 +22,9 @@ import jakarta.transaction.Transactional;
 @Service
 public class MaintenanceServiceImpl implements MaintenanceService {
 
-    private MaintenanceRepository maintenanceRepository;
-    private ContractRepository contractRepository;
-    private MaintenanceEmployeeService maintenanceEmployeeService;
+    private final MaintenanceRepository maintenanceRepository;
+    private final ContractRepository contractRepository;
+    private final MaintenanceEmployeeService maintenanceEmployeeService;
 
     public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository, 
                                   ContractRepository contractRepository, 
@@ -52,6 +52,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         maintenance.setPreventive(maintenanceRequest.getPreventive());
         maintenance.setType(maintenanceRequest.getType());
         maintenance.setStatus(maintenanceRequest.getStatus());
+        maintenance.setActive(definirActive(maintenanceRequest.getActive()));
 
         maintenance = maintenanceRepository.save(maintenance);
 
@@ -80,6 +81,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         existente.setPreventive(maintenanceRequest.getPreventive());
         existente.setType(maintenanceRequest.getType());
         existente.setStatus(maintenanceRequest.getStatus());
+        existente.setActive(definirActive(maintenanceRequest.getActive()));
 
         existente = maintenanceRepository.save(existente);
 
@@ -127,6 +129,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         dto.setPreventive(maintenance.getPreventive());
         dto.setType(maintenance.getType());
         dto.setStatus(maintenance.getStatus());
+        dto.setActive(maintenance.getActive());
 
         Set<MaintenanceEmployee> links = maintenance.getEmployees();
         
@@ -142,5 +145,9 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         }
 
         return dto;
+    }
+
+    private Boolean definirActive(Boolean active) {
+        return !Boolean.FALSE.equals(active);
     }
 }

@@ -9,7 +9,7 @@ public interface EquipmentService {
   
     public Equipment buscarPorId(Long id);
 
-    public Equipment alterar(Long id, Equipment equipment);
+    public Equipment atualizar(Long id, Equipment equipment);
 
     public Equipment cadastrar(Equipment equipment);
 

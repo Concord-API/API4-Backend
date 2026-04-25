@@ -2,6 +2,7 @@ package com.concord.trivio.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -27,35 +28,32 @@ import jakarta.validation.Valid;
 @RequestMapping("/requirements")
 public class RequirementController {
 
-    private final RequirementService requirementService;
-
-    public RequirementController(RequirementService requirementService) {
-        this.requirementService = requirementService;
-    }
+    @Autowired
+    private RequirementService requirementService;
 
     @Operation(summary = "Cadastra um novo requisito")
     @PostMapping
-    public ResponseEntity<Requirement> cadastrar(@Valid @RequestBody RequirementRequest request) {
-        Requirement salvo = requirementService.cadastrar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    public ResponseEntity<Void> cadastrar(@Valid @RequestBody RequirementRequest request) {
+        requirementService.cadastrar(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "Atualiza um requisito existente")
     @PatchMapping("/{id}")
-    public ResponseEntity<Requirement> atualizar(@PathVariable Long id, @RequestBody RequirementRequest request) {
-        Requirement atualizado = requirementService.atualizar(id, request);
-        return ResponseEntity.ok(atualizado);
+    public ResponseEntity<Void> atualizar(@PathVariable Long id, @Valid @RequestBody RequirementRequest request) {
+        requirementService.atualizar(id, request);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @Operation(summary = "Lista todos os requisitos")
     @GetMapping
     public ResponseEntity<List<Requirement>> listar() {
-        return ResponseEntity.ok(requirementService.listar());
+        return ResponseEntity.status(HttpStatus.OK).body(requirementService.listar());
     }
 
     @Operation(summary = "Busca um requisito por ID")
     @GetMapping("/{id}")
     public ResponseEntity<Requirement> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(requirementService.buscarPorId(id));
+        return ResponseEntity.status(HttpStatus.OK).body(requirementService.buscarPorId(id));
     }
 }
