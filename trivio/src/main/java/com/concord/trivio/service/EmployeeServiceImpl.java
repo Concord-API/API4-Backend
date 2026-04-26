@@ -1,23 +1,24 @@
 package com.concord.trivio.service;
 
-import java.util.List;
-
+import com.concord.trivio.entity.Employee;
+import com.concord.trivio.repository.EmployeeRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.concord.trivio.entity.Employee;
-import com.concord.trivio.repository.EmployeeRepository;
-
-import jakarta.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder) {
         this.employeeRepository = employeeRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -30,6 +31,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Colaborador com informações inválidas");
         }
         employee.setActive(definirActive(employee.getActive()));
+        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
         return employeeRepository.save(employee);
     }
 
@@ -48,8 +50,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         existente.setAdmin(employee.isAdmin());
         existente.setActive(definirActive(employee.getActive()));
         existente.setEmail(employee.getEmail());
-        existente.setPassword(employee.getPassword());
-        
+        existente.setPassword(passwordEncoder.encode(employee.getPassword()));
+
         return employeeRepository.save(existente);
     }
 
