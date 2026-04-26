@@ -1,0 +1,37 @@
+services:
+  app:
+    build: .
+    container_name: concord-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: oracle
+      DB_PORT: 1521
+      DB_NAME: FREEPDB1
+      DB_USER: ${APP_USER}
+      DB_PASSWORD: ${APP_USER_PASSWORD}
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      oracle:
+        condition: service_healthy
+
+  oracle:
+    image: gvenzl/oracle-free:23.3-slim-faststart
+    container_name: concord-db
+    restart: unless-stopped
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      APP_USER: ${APP_USER}
+      APP_USER_PASSWORD: ${APP_USER_PASSWORD}
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 15s
+      timeout: 10s
+      retries: 15
+      start_period: 20s
+
+volumes:
+  oracle_data:
