@@ -6,6 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,14 +19,15 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    @Value("${app.security.jwt.secret}")
-    private String secret;
+    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
 
-    @Value("${app.security.jwt.expiration-seconds}")
-    private long expirationSeconds;
+    private final Key signingKey;
+    private final long expirationSeconds;
 
-    private Key signingKey() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+    public JwtUtil(@Value("${app.security.jwt.secret}") String secret,
+                   @Value("${app.security.jwt.expiration-seconds}") long expirationSeconds) {
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        this.expirationSeconds = expirationSeconds;
     }
 
     public String generateToken(UserDetails userDetails) {
@@ -32,14 +35,15 @@ public class JwtUtil {
             .findFirst()
             .map(GrantedAuthority::getAuthority)
             .map(a -> a.replace("ROLE_", ""))
-            .orElse("TECHNICIAN");
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Cannot generate token for user with no authorities: " + userDetails.getUsername()));
 
         return Jwts.builder()
             .setSubject(userDetails.getUsername())
             .claim("role", role)
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + expirationSeconds * 1000L))
-            .signWith(signingKey(), SignatureAlgorithm.HS256)
+            .signWith(signingKey, SignatureAlgorithm.HS256)
             .compact();
     }
 
@@ -56,13 +60,14 @@ public class JwtUtil {
             String username = extractUsername(token);
             return username.equals(userDetails.getUsername()) && !isExpired(token);
         } catch (JwtException e) {
+            log.warn("Invalid JWT token for user {}: {}", userDetails.getUsername(), e.getMessage());
             return false;
         }
     }
 
     private Claims extractClaims(String token) {
         return Jwts.parserBuilder()
-            .setSigningKey(signingKey())
+            .setSigningKey(signingKey)
             .build()
             .parseClaimsJws(token)
             .getBody();
