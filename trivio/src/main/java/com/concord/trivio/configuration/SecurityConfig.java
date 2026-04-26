@@ -58,16 +58,13 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Public
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/error").permitAll()
-                // Manager-only: client/contract/employee/requirement management
                 .requestMatchers("/clients/**").hasRole("MANAGER")
                 .requestMatchers("/contracts/**").hasRole("MANAGER")
                 .requestMatchers("/employees/**").hasRole("MANAGER")
                 .requestMatchers("/requirements/**").hasRole("MANAGER")
-                // Both roles: equipment and maintenances
                 .requestMatchers("/equipments/**").hasAnyRole("MANAGER", "TECHNICIAN")
                 .requestMatchers("/maintenances/**").hasAnyRole("MANAGER", "TECHNICIAN")
                 .anyRequest().authenticated()
