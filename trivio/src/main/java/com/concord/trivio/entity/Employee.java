@@ -33,7 +33,7 @@ public class Employee implements UserDetails {
     @Column(name = "active")
     private Boolean active = true;
 
-    @Column(name = "email", nullable = false, length = 100)
+    @Column(name = "email", nullable = false, length = 100, unique = true)
     private String email;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
