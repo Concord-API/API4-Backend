@@ -25,4 +25,8 @@ public class MaintenanceResponseDTO {
     private MaintenanceStatus status;
     private Boolean active;
     private List<Employee> employees;
+
+    private Double latitude;
+
+    private Double longitude;
 }

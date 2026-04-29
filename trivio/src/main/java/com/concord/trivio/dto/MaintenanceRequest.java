@@ -33,4 +33,8 @@ public class MaintenanceRequest {
     private Boolean active = true;
 
     private Set<Long> employeeIds;
+
+    private Double latitude;
+
+    private Double longitude;
 }
