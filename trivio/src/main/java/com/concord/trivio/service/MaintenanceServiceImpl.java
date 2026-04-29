@@ -46,13 +46,21 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manutenção com informações inválidas");
         }
 
+        Contract contract = buscarContractPorId(maintenanceRequest.getContractId());
+
         Maintenance maintenance = new Maintenance();
-        maintenance.setContract(buscarContractPorId(maintenanceRequest.getContractId()));
+        maintenance.setContract(contract);
         maintenance.setDate(maintenanceRequest.getDate());
         maintenance.setPreventive(maintenanceRequest.getPreventive());
         maintenance.setType(maintenanceRequest.getType());
         maintenance.setStatus(maintenanceRequest.getStatus());
         maintenance.setActive(definirActive(maintenanceRequest.getActive()));
+        maintenance.setLatitude(maintenanceRequest.getLatitude() != null
+                ? maintenanceRequest.getLatitude()
+                : contract.getLatitude());
+        maintenance.setLongitude(maintenanceRequest.getLongitude() != null
+                ? maintenanceRequest.getLongitude()
+                : contract.getLongitude());
 
         maintenance = maintenanceRepository.save(maintenance);
 
@@ -82,6 +90,12 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         existente.setType(maintenanceRequest.getType());
         existente.setStatus(maintenanceRequest.getStatus());
         existente.setActive(definirActive(maintenanceRequest.getActive()));
+        if (maintenanceRequest.getLatitude() != null) {
+            existente.setLatitude(maintenanceRequest.getLatitude());
+        }
+        if (maintenanceRequest.getLongitude() != null) {
+            existente.setLongitude(maintenanceRequest.getLongitude());
+        }
 
         existente = maintenanceRepository.save(existente);
 
@@ -130,6 +144,8 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         dto.setType(maintenance.getType());
         dto.setStatus(maintenance.getStatus());
         dto.setActive(maintenance.getActive());
+        dto.setLatitude(maintenance.getLatitude());
+        dto.setLongitude(maintenance.getLongitude());
 
         Set<MaintenanceEmployee> links = maintenance.getEmployees();
         
