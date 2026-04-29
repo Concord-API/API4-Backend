@@ -24,4 +24,7 @@ public class ContractResponseDTO {
     private Boolean active;
     private List<Equipment> equipments;
     private List<Requirement> requirements;
+
+    private Double latitude;
+    private Double longitude;
 }
