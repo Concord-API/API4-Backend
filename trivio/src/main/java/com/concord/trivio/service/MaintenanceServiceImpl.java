@@ -1,4 +1,5 @@
 package com.concord.trivio.service;
+import com.concord.trivio.observer.MaintenancePublisher;
 
 import java.util.List;
 import java.util.Set;
@@ -25,14 +26,15 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     private final MaintenanceRepository maintenanceRepository;
     private final ContractRepository contractRepository;
     private final MaintenanceEmployeeService maintenanceEmployeeService;
+    private final MaintenancePublisher maintenancePublisher;
 
-    public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository, 
-                                  ContractRepository contractRepository, 
-                                  MaintenanceEmployeeService maintenanceEmployeeService) {
-        this.maintenanceRepository = maintenanceRepository;
-        this.contractRepository = contractRepository;
-        this.maintenanceEmployeeService = maintenanceEmployeeService;
-    }
+    public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository,
+    ContractRepository contractRepository, MaintenanceEmployeeService maintenanceEmployeeService, MaintenancePublisher maintenancePublisher) {
+    this.maintenanceRepository = maintenanceRepository;
+    this.contractRepository = contractRepository;
+    this.maintenanceEmployeeService = maintenanceEmployeeService;
+    this.maintenancePublisher = maintenancePublisher;
+}
 
     @Override
     @Transactional
@@ -84,9 +86,9 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         existente.setActive(definirActive(maintenanceRequest.getActive()));
 
         existente = maintenanceRepository.save(existente);
-
         maintenanceEmployeeService.sincronizarEmployees(existente, maintenanceRequest.getEmployeeIds());
-
+        maintenancePublisher.notifyObservers(existente);  // <- linha adicionada
+        
         return buscarPorId(existente.getId());
     }
 
