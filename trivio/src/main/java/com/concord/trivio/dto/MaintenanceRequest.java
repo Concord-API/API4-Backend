@@ -1,6 +1,7 @@
 package com.concord.trivio.dto;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
 
 import com.concord.trivio.entity.MaintenanceStatus;
@@ -37,4 +38,8 @@ public class MaintenanceRequest {
     private Double latitude;
 
     private Double longitude;
+
+    private LocalTime startTime;
+
+    private LocalTime endTime;
 }

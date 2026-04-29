@@ -61,6 +61,8 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         maintenance.setLongitude(maintenanceRequest.getLongitude() != null
                 ? maintenanceRequest.getLongitude()
                 : contract.getLongitude());
+        maintenance.setStartTime(maintenanceRequest.getStartTime());
+        maintenance.setEndTime(maintenanceRequest.getEndTime());
 
         maintenance = maintenanceRepository.save(maintenance);
 
@@ -95,6 +97,12 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         }
         if (maintenanceRequest.getLongitude() != null) {
             existente.setLongitude(maintenanceRequest.getLongitude());
+        }
+        if (maintenanceRequest.getStartTime() != null) {
+            existente.setStartTime(maintenanceRequest.getStartTime());
+        }
+        if (maintenanceRequest.getEndTime() != null) {
+            existente.setEndTime(maintenanceRequest.getEndTime());
         }
 
         existente = maintenanceRepository.save(existente);
@@ -146,6 +154,8 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         dto.setActive(maintenance.getActive());
         dto.setLatitude(maintenance.getLatitude());
         dto.setLongitude(maintenance.getLongitude());
+        dto.setStartTime(maintenance.getStartTime());
+        dto.setEndTime(maintenance.getEndTime());
 
         Set<MaintenanceEmployee> links = maintenance.getEmployees();
         
