@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.concord.trivio.dto.MaintenanceRequest;
@@ -45,10 +46,15 @@ public class MaintenanceController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @Operation(summary = "Lista todas as manutenções")
+    @Operation(summary = "Lista manutenções. Se informado employeeId, filtra pelo técnico.")
     @GetMapping
-    public ResponseEntity<List<MaintenanceResponseDTO>> listar() {
-        return ResponseEntity.status(HttpStatus.OK).body(maintenanceService.listar());
+    public ResponseEntity<List<MaintenanceResponseDTO>> listar(
+            @RequestParam(required = false) Long employeeId) {
+
+        if (employeeId != null) {
+            return ResponseEntity.ok(maintenanceService.listarPorEmployee(employeeId));
+        }
+        return ResponseEntity.ok(maintenanceService.listar());
     }
 
     @Operation(summary = "Busca uma manutenção pelo ID")
