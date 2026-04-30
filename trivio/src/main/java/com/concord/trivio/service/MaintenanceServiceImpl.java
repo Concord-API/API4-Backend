@@ -125,6 +125,13 @@ public class MaintenanceServiceImpl implements MaintenanceService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+public List<MaintenanceResponseDTO> listarPorEmployee(Long employeeId) {
+    return maintenanceRepository.findByEmployeeId(employeeId).stream()
+            .map(this::toDto)
+            .collect(Collectors.toList());
+}
+
     private Maintenance buscarEntidadePorId(Long id) {
         return maintenanceRepository.findById(id).orElseThrow(() -> 
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
