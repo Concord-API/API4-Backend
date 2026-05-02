@@ -1,5 +1,7 @@
 package com.concord.trivio.service;
 
+import com.concord.trivio.observer.MaintenancePublisher;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,13 +27,16 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     private final MaintenanceRepository maintenanceRepository;
     private final ContractRepository contractRepository;
     private final MaintenanceEmployeeService maintenanceEmployeeService;
+    private final MaintenancePublisher maintenancePublisher;
 
-    public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository, 
-                                  ContractRepository contractRepository, 
-                                  MaintenanceEmployeeService maintenanceEmployeeService) {
+    public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository,
+                                  ContractRepository contractRepository,
+                                  MaintenanceEmployeeService maintenanceEmployeeService,
+                                  MaintenancePublisher maintenancePublisher) {
         this.maintenanceRepository = maintenanceRepository;
         this.contractRepository = contractRepository;
         this.maintenanceEmployeeService = maintenanceEmployeeService;
+        this.maintenancePublisher = maintenancePublisher;
     }
 
     @Override
@@ -68,7 +73,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
         maintenanceEmployeeService.sincronizarEmployees(maintenance, maintenanceRequest.getEmployeeIds());
 
-        return buscarPorId(maintenance.getId()); 
+        return buscarPorId(maintenance.getId());
     }
 
     @Override
@@ -87,20 +92,25 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         if (maintenanceRequest.getContractId() != null) {
             existente.setContract(buscarContractPorId(maintenanceRequest.getContractId()));
         }
+
         existente.setDate(maintenanceRequest.getDate());
         existente.setPreventive(maintenanceRequest.getPreventive());
         existente.setType(maintenanceRequest.getType());
         existente.setStatus(maintenanceRequest.getStatus());
         existente.setActive(definirActive(maintenanceRequest.getActive()));
+
         if (maintenanceRequest.getLatitude() != null) {
             existente.setLatitude(maintenanceRequest.getLatitude());
         }
+
         if (maintenanceRequest.getLongitude() != null) {
             existente.setLongitude(maintenanceRequest.getLongitude());
         }
+
         if (maintenanceRequest.getStartTime() != null) {
             existente.setStartTime(maintenanceRequest.getStartTime());
         }
+
         if (maintenanceRequest.getEndTime() != null) {
             existente.setEndTime(maintenanceRequest.getEndTime());
         }
@@ -108,6 +118,8 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         existente = maintenanceRepository.save(existente);
 
         maintenanceEmployeeService.sincronizarEmployees(existente, maintenanceRequest.getEmployeeIds());
+
+        maintenancePublisher.notifyObservers(existente);
 
         return buscarPorId(existente.getId());
     }
@@ -126,27 +138,27 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     }
 
     @Override
-public List<MaintenanceResponseDTO> listarPorEmployee(Long employeeId) {
-    return maintenanceRepository.findByEmployeeId(employeeId).stream()
-            .map(this::toDto)
-            .collect(Collectors.toList());
-}
+    public List<MaintenanceResponseDTO> listarPorEmployee(Long employeeId) {
+        return maintenanceRepository.findByEmployeeId(employeeId).stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
 
     private Maintenance buscarEntidadePorId(Long id) {
-        return maintenanceRepository.findById(id).orElseThrow(() -> 
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
+        return maintenanceRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
         );
     }
 
     private Maintenance buscarEntidadeComEmployees(Long id) {
-        return maintenanceRepository.findByIdWithEmployees(id).orElseThrow(() -> 
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
+        return maintenanceRepository.findByIdWithEmployees(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
         );
     }
 
     private Contract buscarContractPorId(Long id) {
-        return contractRepository.findById(id).orElseThrow(() -> 
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "Contrato não encontrado")
+        return contractRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Contrato não encontrado")
         );
     }
 
@@ -165,13 +177,13 @@ public List<MaintenanceResponseDTO> listarPorEmployee(Long employeeId) {
         dto.setEndTime(maintenance.getEndTime());
 
         Set<MaintenanceEmployee> links = maintenance.getEmployees();
-        
+
         if (links != null) {
             List<Employee> employeesAtivos = links.stream()
-                .filter(MaintenanceEmployee::getActive)
-                .map(MaintenanceEmployee::getEmployee)
-                .collect(Collectors.toList());
-                
+                    .filter(MaintenanceEmployee::getActive)
+                    .map(MaintenanceEmployee::getEmployee)
+                    .collect(Collectors.toList());
+
             dto.setEmployees(employeesAtivos);
         } else {
             dto.setEmployees(List.of());
