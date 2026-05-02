@@ -51,4 +51,9 @@ public class Contract {
     @OneToMany(mappedBy = "contract", cascade = jakarta.persistence.CascadeType.ALL)
     private java.util.Set<ContractEquipment> equipments;
 
+    @Column(name = "latitude", nullable = false)
+    private Double latitude;
+
+    @Column(name = "longitude", nullable = false)
+    private Double longitude;
 }

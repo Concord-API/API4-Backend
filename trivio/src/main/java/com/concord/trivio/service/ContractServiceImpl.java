@@ -45,7 +45,9 @@ public class ContractServiceImpl implements ContractService {
             contractRequest.getClientId() == null ||
             contractRequest.getInitialDate() == null ||
             contractRequest.getFinalDate() == null ||
-            contractRequest.getRecurrenceMaintenance() == null) {
+            contractRequest.getRecurrenceMaintenance() == null ||
+            contractRequest.getLatitude() == null ||
+            contractRequest.getLongitude() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Contrato com informações inválidas");
         }
 
@@ -55,6 +57,8 @@ public class ContractServiceImpl implements ContractService {
         contract.setFinalDate(contractRequest.getFinalDate());
         contract.setRecurrenceMaintenance(contractRequest.getRecurrenceMaintenance());
         contract.setActive(definirActive(contractRequest.getActive()));
+        contract.setLatitude(contractRequest.getLatitude());
+        contract.setLongitude(contractRequest.getLongitude());
 
         contract = contractRepository.save(contract);
 
@@ -73,7 +77,9 @@ public class ContractServiceImpl implements ContractService {
             contractRequest.getClientId() == null ||
             contractRequest.getInitialDate() == null ||
             contractRequest.getFinalDate() == null ||
-            contractRequest.getRecurrenceMaintenance() == null) {
+            contractRequest.getRecurrenceMaintenance() == null ||
+            contractRequest.getLatitude() == null ||
+            contractRequest.getLongitude() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Contrato com informações inválidas");
         }
 
@@ -82,6 +88,8 @@ public class ContractServiceImpl implements ContractService {
         existente.setFinalDate(contractRequest.getFinalDate());
         existente.setRecurrenceMaintenance(contractRequest.getRecurrenceMaintenance());
         existente.setActive(definirActive(contractRequest.getActive()));
+        existente.setLatitude(contractRequest.getLatitude());
+        existente.setLongitude(contractRequest.getLongitude());
 
         existente = contractRepository.save(existente);
 
@@ -158,6 +166,9 @@ public class ContractServiceImpl implements ContractService {
         } else {
             dto.setRequirements(List.of());
         }
+
+        dto.setLatitude(contract.getLatitude());
+        dto.setLongitude(contract.getLongitude());
 
         return dto;
     }

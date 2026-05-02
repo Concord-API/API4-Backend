@@ -1,4 +1,5 @@
 package com.concord.trivio.service;
+
 import com.concord.trivio.observer.MaintenancePublisher;
 
 import java.util.List;
@@ -29,12 +30,14 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     private final MaintenancePublisher maintenancePublisher;
 
     public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository,
-    ContractRepository contractRepository, MaintenanceEmployeeService maintenanceEmployeeService, MaintenancePublisher maintenancePublisher) {
-    this.maintenanceRepository = maintenanceRepository;
-    this.contractRepository = contractRepository;
-    this.maintenanceEmployeeService = maintenanceEmployeeService;
-    this.maintenancePublisher = maintenancePublisher;
-}
+                                  ContractRepository contractRepository,
+                                  MaintenanceEmployeeService maintenanceEmployeeService,
+                                  MaintenancePublisher maintenancePublisher) {
+        this.maintenanceRepository = maintenanceRepository;
+        this.contractRepository = contractRepository;
+        this.maintenanceEmployeeService = maintenanceEmployeeService;
+        this.maintenancePublisher = maintenancePublisher;
+    }
 
     @Override
     @Transactional
@@ -48,19 +51,29 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manutenção com informações inválidas");
         }
 
+        Contract contract = buscarContractPorId(maintenanceRequest.getContractId());
+
         Maintenance maintenance = new Maintenance();
-        maintenance.setContract(buscarContractPorId(maintenanceRequest.getContractId()));
+        maintenance.setContract(contract);
         maintenance.setDate(maintenanceRequest.getDate());
         maintenance.setPreventive(maintenanceRequest.getPreventive());
         maintenance.setType(maintenanceRequest.getType());
         maintenance.setStatus(maintenanceRequest.getStatus());
         maintenance.setActive(definirActive(maintenanceRequest.getActive()));
+        maintenance.setLatitude(maintenanceRequest.getLatitude() != null
+                ? maintenanceRequest.getLatitude()
+                : contract.getLatitude());
+        maintenance.setLongitude(maintenanceRequest.getLongitude() != null
+                ? maintenanceRequest.getLongitude()
+                : contract.getLongitude());
+        maintenance.setStartTime(maintenanceRequest.getStartTime());
+        maintenance.setEndTime(maintenanceRequest.getEndTime());
 
         maintenance = maintenanceRepository.save(maintenance);
 
         maintenanceEmployeeService.sincronizarEmployees(maintenance, maintenanceRequest.getEmployeeIds());
 
-        return buscarPorId(maintenance.getId()); 
+        return buscarPorId(maintenance.getId());
     }
 
     @Override
@@ -79,16 +92,35 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         if (maintenanceRequest.getContractId() != null) {
             existente.setContract(buscarContractPorId(maintenanceRequest.getContractId()));
         }
+
         existente.setDate(maintenanceRequest.getDate());
         existente.setPreventive(maintenanceRequest.getPreventive());
         existente.setType(maintenanceRequest.getType());
         existente.setStatus(maintenanceRequest.getStatus());
         existente.setActive(definirActive(maintenanceRequest.getActive()));
 
+        if (maintenanceRequest.getLatitude() != null) {
+            existente.setLatitude(maintenanceRequest.getLatitude());
+        }
+
+        if (maintenanceRequest.getLongitude() != null) {
+            existente.setLongitude(maintenanceRequest.getLongitude());
+        }
+
+        if (maintenanceRequest.getStartTime() != null) {
+            existente.setStartTime(maintenanceRequest.getStartTime());
+        }
+
+        if (maintenanceRequest.getEndTime() != null) {
+            existente.setEndTime(maintenanceRequest.getEndTime());
+        }
+
         existente = maintenanceRepository.save(existente);
+
         maintenanceEmployeeService.sincronizarEmployees(existente, maintenanceRequest.getEmployeeIds());
-        maintenancePublisher.notifyObservers(existente);  // <- linha adicionada
-        
+
+        maintenancePublisher.notifyObservers(existente);
+
         return buscarPorId(existente.getId());
     }
 
@@ -105,21 +137,28 @@ public class MaintenanceServiceImpl implements MaintenanceService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<MaintenanceResponseDTO> listarPorEmployee(Long employeeId) {
+        return maintenanceRepository.findByEmployeeId(employeeId).stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
     private Maintenance buscarEntidadePorId(Long id) {
-        return maintenanceRepository.findById(id).orElseThrow(() -> 
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
+        return maintenanceRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
         );
     }
 
     private Maintenance buscarEntidadeComEmployees(Long id) {
-        return maintenanceRepository.findByIdWithEmployees(id).orElseThrow(() -> 
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
+        return maintenanceRepository.findByIdWithEmployees(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
         );
     }
 
     private Contract buscarContractPorId(Long id) {
-        return contractRepository.findById(id).orElseThrow(() -> 
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "Contrato não encontrado")
+        return contractRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Contrato não encontrado")
         );
     }
 
@@ -132,15 +171,19 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         dto.setType(maintenance.getType());
         dto.setStatus(maintenance.getStatus());
         dto.setActive(maintenance.getActive());
+        dto.setLatitude(maintenance.getLatitude());
+        dto.setLongitude(maintenance.getLongitude());
+        dto.setStartTime(maintenance.getStartTime());
+        dto.setEndTime(maintenance.getEndTime());
 
         Set<MaintenanceEmployee> links = maintenance.getEmployees();
-        
+
         if (links != null) {
             List<Employee> employeesAtivos = links.stream()
-                .filter(MaintenanceEmployee::getActive)
-                .map(MaintenanceEmployee::getEmployee)
-                .collect(Collectors.toList());
-                
+                    .filter(MaintenanceEmployee::getActive)
+                    .map(MaintenanceEmployee::getEmployee)
+                    .collect(Collectors.toList());
+
             dto.setEmployees(employeesAtivos);
         } else {
             dto.setEmployees(List.of());
