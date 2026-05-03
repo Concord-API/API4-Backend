@@ -1,5 +1,6 @@
 package com.concord.trivio.entity;
 
+import java.time.LocalTime;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
@@ -50,9 +51,23 @@ public class Maintenance {
     @Column(name = "status", nullable = false, length = 20)
     private MaintenanceStatus status;
 
+    @Column(name = "active", nullable = false)
+    private Boolean active = true;
+
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @OneToMany(mappedBy = "maintenance", cascade = jakarta.persistence.CascadeType.ALL)
     private java.util.Set<MaintenanceEmployee> employees;
 
+    @Column(name = "latitude", nullable = true)
+    private Double latitude;
+
+    @Column(name = "longitude", nullable = true)
+    private Double longitude;
+
+    @Column(name = "start_time", nullable = true)
+    private LocalTime startTime;
+
+    @Column(name = "end_time", nullable = true)
+    private LocalTime endTime;
 }

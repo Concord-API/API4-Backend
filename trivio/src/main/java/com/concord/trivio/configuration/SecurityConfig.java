@@ -1,25 +1,47 @@
 package com.concord.trivio.configuration;
 
-import java.util.List;
-
+import com.concord.trivio.security.JwtAuthFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthFilter jwtAuthFilter;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5173", "https://trivio.useconcord.tech", "https://trivio.usesora.tech"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -34,36 +56,21 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.GET, "/equipments").permitAll()
-                .requestMatchers(HttpMethod.GET, "/equipments/**").permitAll()
-                .requestMatchers(HttpMethod.PATCH, "/equipments/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/equipments").permitAll()
-                .requestMatchers(HttpMethod.GET, "/clients").permitAll()
-                .requestMatchers(HttpMethod.GET, "/clients/**").permitAll()
-                .requestMatchers(HttpMethod.PATCH, "/clients/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/clients").permitAll()
-                .requestMatchers(HttpMethod.GET, "/contracts").permitAll()
-                .requestMatchers(HttpMethod.GET, "/contracts/**").permitAll()
-                .requestMatchers(HttpMethod.PATCH, "/contracts/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/contracts").permitAll()
-                .requestMatchers(HttpMethod.GET, "/employees").permitAll()
-                .requestMatchers(HttpMethod.GET, "/employees/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/employees").permitAll()
-                .requestMatchers(HttpMethod.PUT, "/employees/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/maintenances").permitAll()
-                .requestMatchers(HttpMethod.GET, "/maintenances/**").permitAll()
-                .requestMatchers(HttpMethod.PATCH, "/maintenances/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/maintenances").permitAll()
-                .requestMatchers(HttpMethod.GET, "/requirements").permitAll()
-                .requestMatchers(HttpMethod.GET, "/requirements/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/requirements").permitAll()
-                .requestMatchers(HttpMethod.PATCH, "/requirements/**").permitAll()
+                .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/error").permitAll()
+                .requestMatchers("/clients/**").hasRole("MANAGER")
+                .requestMatchers("/contracts/**").hasRole("MANAGER")
+                .requestMatchers("/employees/**").hasRole("MANAGER")
+                .requestMatchers("/requirements/**").hasRole("MANAGER")
+                .requestMatchers("/equipments/**").hasAnyRole("MANAGER", "TECHNICIAN")
+                .requestMatchers("/maintenances/**").hasAnyRole("MANAGER", "TECHNICIAN")
                 .anyRequest().authenticated()
             )
-            .httpBasic(basic -> {});
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }

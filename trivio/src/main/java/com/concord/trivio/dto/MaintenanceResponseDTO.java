@@ -1,6 +1,7 @@
 package com.concord.trivio.dto;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import com.concord.trivio.entity.Contract;
@@ -23,5 +24,14 @@ public class MaintenanceResponseDTO {
     private Boolean preventive;
     private MaintenanceType type;
     private MaintenanceStatus status;
+    private Boolean active;
     private List<Employee> employees;
+
+    private Double latitude;
+
+    private Double longitude;
+
+    private LocalTime startTime;
+
+    private LocalTime endTime;
 }

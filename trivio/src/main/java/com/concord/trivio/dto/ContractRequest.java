@@ -30,4 +30,10 @@ public class ContractRequest {
     private Set<Long> equipmentIds;
 
     private Set<Long> requirementIds;
+
+    @NotNull
+    private Double latitude;
+
+    @NotNull
+    private Double longitude;
 }
