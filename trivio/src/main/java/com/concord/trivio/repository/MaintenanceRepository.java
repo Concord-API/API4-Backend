@@ -15,7 +15,7 @@ public interface MaintenanceRepository extends JpaRepository<Maintenance, Long> 
     @Query("SELECT DISTINCT m FROM Maintenance m LEFT JOIN FETCH m.employees me LEFT JOIN FETCH me.employee WHERE m.id = :id")
     Optional<Maintenance> findByIdWithEmployees(@Param("id") Long id);
 
-    @Query("SELECT DISTINCT m FROM Maintenance m LEFT JOIN FETCH m.employees me LEFT JOIN FETCH me.employee")
+    @Query("SELECT DISTINCT m FROM Maintenance m LEFT JOIN FETCH m.employees me LEFT JOIN FETCH me.employee WHERE m.active = true")
     List<Maintenance> findAllWithEmployees();
 
     @Query("""
@@ -24,6 +24,7 @@ public interface MaintenanceRepository extends JpaRepository<Maintenance, Long> 
         LEFT JOIN FETCH me.employee e
         WHERE me.employee.employeeId = :employeeId
         AND me.active = true
+        AND m.active = true
     """)
     List<Maintenance> findByEmployeeId(@Param("employeeId") Long employeeId);
 
