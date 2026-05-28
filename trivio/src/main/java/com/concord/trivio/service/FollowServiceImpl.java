@@ -52,6 +52,7 @@ public class FollowServiceImpl implements FollowService {
         validarAtualizacao(followRequest);
 
         Follow existente = buscarEntidadePorId(followRequest.getId());
+        validarAutor(existente, buscarEmployeeLogado());
         existente.setMessage(followRequest.getMessage());
         existente.setActive(definirActive(followRequest.getActive()));
 
@@ -109,6 +110,12 @@ public class FollowServiceImpl implements FollowService {
         }
 
         return employee;
+    }
+
+    private void validarAutor(Follow follow, Employee employee) {
+        if (!follow.getEmployee().getEmployeeId().equals(employee.getEmployeeId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acompanhamento pertence a outro usuario");
+        }
     }
 
     private Boolean definirActive(Boolean active) {
