@@ -42,4 +42,39 @@ public class ChecklistServiceImpl implements ChecklistService {
 
         return checklistRepository.save(checklist);
     }
+
+    @Override
+    @Transactional
+    public Checklist atualizar(Long id, ChecklistRequest request) {
+        Checklist existente = checklistRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Checklist não encontrado")
+        );
+
+        if (request.getMaintenanceId() != null) {
+            Maintenance maintenance = maintenanceRepository.findById(request.getMaintenanceId()).orElseThrow(() ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
+            );
+            existente.setMaintenance(maintenance);
+        }
+
+        if (request.getDescription() != null) {
+            existente.setDescription(request.getDescription());
+        }
+
+        if (request.getCompleted() != null) {
+            existente.setCompleted(request.getCompleted());
+        }
+
+        return checklistRepository.save(existente);
+    }
+
+    @Override
+    @Transactional
+    public void deletar(Long id) {
+        Checklist existente = checklistRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Checklist não encontrado")
+        );
+
+        checklistRepository.delete(existente);
+    }
 }
