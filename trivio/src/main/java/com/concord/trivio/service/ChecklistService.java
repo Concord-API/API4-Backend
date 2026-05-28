@@ -7,4 +7,8 @@ public interface ChecklistService {
 
     Checklist cadastrar(ChecklistRequest request);
 
+    Checklist atualizar(Long id, ChecklistRequest request);
+
+    void deletar(Long id);
+
 }
