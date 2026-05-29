@@ -30,6 +30,8 @@ public class MaintenanceCreatorObserver implements MaintenanceObserver {
         proxima.setStatus(MaintenanceStatus.SCHEDULED);
         proxima.setPreventive(true);
         proxima.setActive(true);
+        proxima.setLatitude(maintenance.getLatitude());
+        proxima.setLongitude(maintenance.getLongitude());
 
         maintenanceRepository.save(proxima);
     }
