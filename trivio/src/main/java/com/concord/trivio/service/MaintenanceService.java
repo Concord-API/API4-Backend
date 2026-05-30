@@ -15,5 +15,7 @@ public interface MaintenanceService {
 
     MaintenanceResponseDTO buscarPorId(Long id);
 
-    List<MaintenanceResponseDTO> listarPorEmployee(Long employeeId); // novo
+    List<MaintenanceResponseDTO> listarPorEmployee(Long employeeId);
+
+    MaintenanceResponseDTO gerarProxima(Long id);
 }

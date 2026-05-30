@@ -34,4 +34,6 @@ public class MaintenanceResponseDTO {
     private LocalTime startTime;
 
     private LocalTime endTime;
+
+    private NextMaintenanceSuggestionDTO nextMaintenanceSuggestion;
 }
