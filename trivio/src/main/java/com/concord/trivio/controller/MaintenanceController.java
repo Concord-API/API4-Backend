@@ -39,11 +39,16 @@ public class MaintenanceController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "Atualiza uma manutenção existente")
+    @Operation(summary = "Atualiza uma manutenção existente. Se status for COMPLETED, retorna nextMaintenanceSuggestion com a sugestão da próxima manutenção a ser confirmada pelo usuário.")
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> atualizar(@PathVariable Long id, @Valid @RequestBody MaintenanceRequest maintenanceRequest) {
-        maintenanceService.atualizar(id, maintenanceRequest);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    public ResponseEntity<MaintenanceResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody MaintenanceRequest maintenanceRequest) {
+        return ResponseEntity.ok(maintenanceService.atualizar(id, maintenanceRequest));
+    }
+
+    @Operation(summary = "Confirma a criação da próxima manutenção a partir de uma manutenção concluída")
+    @PostMapping("/{id}/next")
+    public ResponseEntity<MaintenanceResponseDTO> gerarProxima(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(maintenanceService.gerarProxima(id));
     }
 
     @Operation(summary = "Lista manutenções. Se informado employeeId, filtra pelo técnico.")

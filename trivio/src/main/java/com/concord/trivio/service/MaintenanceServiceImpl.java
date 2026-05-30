@@ -1,7 +1,5 @@
 package com.concord.trivio.service;
 
-import com.concord.trivio.observer.MaintenancePublisher;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,10 +10,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.concord.trivio.dto.MaintenanceRequest;
 import com.concord.trivio.dto.MaintenanceResponseDTO;
+import com.concord.trivio.dto.NextMaintenanceSuggestionDTO;
 import com.concord.trivio.entity.Contract;
 import com.concord.trivio.entity.Employee;
 import com.concord.trivio.entity.Maintenance;
 import com.concord.trivio.entity.MaintenanceEmployee;
+import com.concord.trivio.entity.MaintenanceStatus;
+import com.concord.trivio.entity.MaintenanceType;
 import com.concord.trivio.repository.ContractRepository;
 import com.concord.trivio.repository.MaintenanceRepository;
 
@@ -27,16 +28,13 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     private final MaintenanceRepository maintenanceRepository;
     private final ContractRepository contractRepository;
     private final MaintenanceEmployeeService maintenanceEmployeeService;
-    private final MaintenancePublisher maintenancePublisher;
 
     public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository,
                                   ContractRepository contractRepository,
-                                  MaintenanceEmployeeService maintenanceEmployeeService,
-                                  MaintenancePublisher maintenancePublisher) {
+                                  MaintenanceEmployeeService maintenanceEmployeeService) {
         this.maintenanceRepository = maintenanceRepository;
         this.contractRepository = contractRepository;
         this.maintenanceEmployeeService = maintenanceEmployeeService;
-        this.maintenancePublisher = maintenancePublisher;
     }
 
     @Override
@@ -119,9 +117,13 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
         maintenanceEmployeeService.sincronizarEmployees(existente, maintenanceRequest.getEmployeeIds());
 
-        maintenancePublisher.notifyObservers(existente);
+        MaintenanceResponseDTO dto = buscarPorId(existente.getId());
 
-        return buscarPorId(existente.getId());
+        if (existente.getStatus() == MaintenanceStatus.COMPLETED) {
+            dto.setNextMaintenanceSuggestion(buildSuggestion(existente));
+        }
+
+        return dto;
     }
 
     @Override
@@ -190,6 +192,45 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         }
 
         return dto;
+    }
+
+    @Override
+    @Transactional
+    public MaintenanceResponseDTO gerarProxima(Long id) {
+        Maintenance concluida = buscarEntidadePorId(id);
+
+        if (concluida.getStatus() != MaintenanceStatus.COMPLETED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Só é possível gerar próxima manutenção a partir de uma manutenção concluída");
+        }
+
+        long recorrencia = concluida.getContract().getRecurrenceMaintenance();
+
+        Maintenance proxima = new Maintenance();
+        proxima.setContract(concluida.getContract());
+        proxima.setDate(concluida.getDate().plusDays(recorrencia));
+        proxima.setType(MaintenanceType.PREVENTIVA);
+        proxima.setStatus(MaintenanceStatus.SCHEDULED);
+        proxima.setPreventive(true);
+        proxima.setActive(true);
+        proxima.setLatitude(concluida.getLatitude());
+        proxima.setLongitude(concluida.getLongitude());
+
+        proxima = maintenanceRepository.save(proxima);
+        return buscarPorId(proxima.getId());
+    }
+
+    private NextMaintenanceSuggestionDTO buildSuggestion(Maintenance maintenance) {
+        long recorrencia = maintenance.getContract().getRecurrenceMaintenance();
+        return new NextMaintenanceSuggestionDTO(
+                maintenance.getContract().getId(),
+                maintenance.getDate().plusDays(recorrencia),
+                MaintenanceType.PREVENTIVA,
+                MaintenanceStatus.SCHEDULED,
+                true,
+                maintenance.getLatitude(),
+                maintenance.getLongitude()
+        );
     }
 
     private Boolean definirActive(Boolean active) {
