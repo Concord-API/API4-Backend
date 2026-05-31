@@ -19,6 +19,7 @@ import com.concord.trivio.entity.MaintenanceStatus;
 import com.concord.trivio.entity.MaintenanceType;
 import com.concord.trivio.repository.ContractRepository;
 import com.concord.trivio.repository.MaintenanceRepository;
+import com.concord.trivio.observer.MaintenancePublisher;
 
 import jakarta.transaction.Transactional;
 
@@ -28,13 +29,16 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     private final MaintenanceRepository maintenanceRepository;
     private final ContractRepository contractRepository;
     private final MaintenanceEmployeeService maintenanceEmployeeService;
+    private final MaintenancePublisher maintenancePublisher;
 
     public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository,
                                   ContractRepository contractRepository,
-                                  MaintenanceEmployeeService maintenanceEmployeeService) {
+                                  MaintenanceEmployeeService maintenanceEmployeeService,
+                                  MaintenancePublisher maintenancePublisher) {
         this.maintenanceRepository = maintenanceRepository;
         this.contractRepository = contractRepository;
         this.maintenanceEmployeeService = maintenanceEmployeeService;
+        this.maintenancePublisher = maintenancePublisher;
     }
 
     @Override
@@ -121,6 +125,8 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
         if (existente.getStatus() == MaintenanceStatus.COMPLETED) {
             dto.setNextMaintenanceSuggestion(buildSuggestion(existente));
+            // notify observers to create the next maintenance automatically
+            maintenancePublisher.notifyObservers(existente);
         }
 
         return dto;
@@ -204,6 +210,11 @@ public class MaintenanceServiceImpl implements MaintenanceService {
                     "Só é possível gerar próxima manutenção a partir de uma manutenção concluída");
         }
 
+        if (Boolean.TRUE.equals(concluida.getNextGenerated())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "A próxima manutenção já foi gerada a partir desta");
+        }
+
         long recorrencia = concluida.getContract().getRecurrenceMaintenance();
 
         Maintenance proxima = new Maintenance();
@@ -217,6 +228,10 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         proxima.setLongitude(concluida.getLongitude());
 
         proxima = maintenanceRepository.save(proxima);
+
+        concluida.setNextGenerated(true);
+        maintenanceRepository.save(concluida);
+
         return buscarPorId(proxima.getId());
     }
 
