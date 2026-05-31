@@ -2,6 +2,7 @@ package com.concord.trivio.service;
 
 import java.util.List;
 
+import com.concord.trivio.dto.MaintenanceNotificationDTO;
 import com.concord.trivio.dto.MaintenanceRequest;
 import com.concord.trivio.dto.MaintenanceResponseDTO;
 
@@ -16,6 +17,8 @@ public interface MaintenanceService {
     MaintenanceResponseDTO buscarPorId(Long id);
 
     List<MaintenanceResponseDTO> listarPorEmployee(Long employeeId);
+
+    List<MaintenanceNotificationDTO> listarNotificacoesPorEmployee(Long employeeId);
 
     MaintenanceResponseDTO gerarProxima(Long id);
 }

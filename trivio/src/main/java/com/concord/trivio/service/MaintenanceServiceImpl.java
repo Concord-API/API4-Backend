@@ -1,5 +1,9 @@
 package com.concord.trivio.service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -8,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.concord.trivio.dto.MaintenanceNotificationDTO;
 import com.concord.trivio.dto.MaintenanceRequest;
 import com.concord.trivio.dto.MaintenanceResponseDTO;
 import com.concord.trivio.dto.NextMaintenanceSuggestionDTO;
@@ -24,6 +29,8 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class MaintenanceServiceImpl implements MaintenanceService {
+
+    private static final ZoneId NOTIFICATION_ZONE = ZoneId.of("America/Sao_Paulo");
 
     private final MaintenanceRepository maintenanceRepository;
     private final ContractRepository contractRepository;
@@ -146,6 +153,31 @@ public class MaintenanceServiceImpl implements MaintenanceService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<MaintenanceNotificationDTO> listarNotificacoesPorEmployee(Long employeeId) {
+        if (employeeId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Técnico não informado");
+        }
+
+        LocalDate hoje = LocalDate.now(NOTIFICATION_ZONE);
+        List<LocalDate> datasAlvo = List.of(
+                hoje.plusDays(1),
+                hoje.plusDays(3),
+                hoje.plusDays(7)
+        );
+
+        return maintenanceRepository.findScheduledNotificationsByEmployeeId(
+                        employeeId,
+                        MaintenanceStatus.SCHEDULED,
+                        datasAlvo
+                ).stream()
+                .map(maintenance -> toNotificationDto(maintenance, hoje))
+                .sorted(Comparator
+                        .comparing(MaintenanceNotificationDTO::getDaysUntilMaintenance)
+                        .thenComparing(MaintenanceNotificationDTO::getMaintenanceDate))
+                .collect(Collectors.toList());
+    }
+
     private Maintenance buscarEntidadePorId(Long id) {
         return maintenanceRepository.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Manutenção não encontrada")
@@ -191,6 +223,18 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             dto.setEmployees(List.of());
         }
 
+        return dto;
+    }
+
+    private MaintenanceNotificationDTO toNotificationDto(Maintenance maintenance, LocalDate hoje) {
+        MaintenanceNotificationDTO dto = new MaintenanceNotificationDTO();
+        dto.setMaintenanceId(maintenance.getId());
+        dto.setContractId(maintenance.getContract().getId());
+        dto.setClientName(maintenance.getContract().getClient().getName());
+        dto.setMaintenanceDate(maintenance.getDate());
+        dto.setDaysUntilMaintenance((int) ChronoUnit.DAYS.between(hoje, maintenance.getDate()));
+        dto.setType(maintenance.getType());
+        dto.setStatus(maintenance.getStatus());
         return dto;
     }
 
