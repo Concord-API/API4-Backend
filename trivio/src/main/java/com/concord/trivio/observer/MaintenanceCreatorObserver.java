@@ -21,6 +21,10 @@ public class MaintenanceCreatorObserver implements MaintenanceObserver {
             return;
         }
 
+        if (Boolean.TRUE.equals(maintenance.getNextGenerated())) {
+            return;
+        }
+
         long recorrencia = maintenance.getContract().getRecurrenceMaintenance();
 
         Maintenance proxima = new Maintenance();
@@ -34,5 +38,8 @@ public class MaintenanceCreatorObserver implements MaintenanceObserver {
         proxima.setLongitude(maintenance.getLongitude());
 
         maintenanceRepository.save(proxima);
+
+        maintenance.setNextGenerated(true);
+        maintenanceRepository.save(maintenance);
     }
 }
