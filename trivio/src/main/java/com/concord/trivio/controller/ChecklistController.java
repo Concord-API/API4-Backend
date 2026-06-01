@@ -48,7 +48,7 @@ public class ChecklistController {
 
     @Operation(summary = "Atualiza um checklist existente")
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> atualizar(@PathVariable Long id, @Valid @RequestBody ChecklistRequest request) {
+    public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody ChecklistRequest request) {
         checklistService.atualizar(id, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

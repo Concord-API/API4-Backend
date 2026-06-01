@@ -51,6 +51,10 @@ public class ChecklistServiceImpl implements ChecklistService {
     @Override
     @Transactional
     public Checklist atualizar(Long id, ChecklistRequest request) {
+        if (request == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Checklist com informacoes invalidas");
+        }
+
         Checklist existente = checklistRepository.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Checklist não encontrado")
         );
