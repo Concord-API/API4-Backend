@@ -70,4 +70,7 @@ public class Maintenance {
 
     @Column(name = "end_time", nullable = true)
     private LocalTime endTime;
+
+    @Column(name = "next_generated", columnDefinition = "NUMBER(1) DEFAULT 0 NOT NULL")
+    private Boolean nextGenerated = false;
 }

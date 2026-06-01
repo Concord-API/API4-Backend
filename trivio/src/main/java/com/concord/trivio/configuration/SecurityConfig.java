@@ -4,6 +4,7 @@ import com.concord.trivio.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -67,6 +68,11 @@ public class SecurityConfig {
                 .requestMatchers("/requirements/**").hasRole("MANAGER")
                 .requestMatchers("/equipments/**").hasAnyRole("MANAGER", "TECHNICIAN")
                 .requestMatchers("/maintenances/**").hasAnyRole("MANAGER", "TECHNICIAN")
+                .requestMatchers("/follows/**").hasAnyRole("MANAGER", "TECHNICIAN")
+                .requestMatchers(HttpMethod.GET, "/checklists", "/checklists/**").hasAnyRole("MANAGER", "TECHNICIAN")
+                .requestMatchers(HttpMethod.PATCH, "/checklists/**").hasAnyRole("MANAGER", "TECHNICIAN")
+                .requestMatchers(HttpMethod.POST, "/checklists", "/checklists/**").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.DELETE, "/checklists/**").hasRole("MANAGER")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -21,12 +21,7 @@ public class MaintenanceCreatorObserver implements MaintenanceObserver {
             return;
         }
 
-        boolean proximaJaExiste = maintenanceRepository.existsNextMaintenance(
-            maintenance.getContract().getId(),
-            maintenance.getDate()
-        );
-
-        if (proximaJaExiste) {
+        if (Boolean.TRUE.equals(maintenance.getNextGenerated())) {
             return;
         }
 
@@ -35,11 +30,16 @@ public class MaintenanceCreatorObserver implements MaintenanceObserver {
         Maintenance proxima = new Maintenance();
         proxima.setContract(maintenance.getContract());
         proxima.setDate(maintenance.getDate().plusDays(recorrencia));
-        proxima.setPreventive(true);
         proxima.setType(MaintenanceType.PREVENTIVA);
         proxima.setStatus(MaintenanceStatus.SCHEDULED);
+        proxima.setPreventive(true);
         proxima.setActive(true);
+        proxima.setLatitude(maintenance.getLatitude());
+        proxima.setLongitude(maintenance.getLongitude());
 
         maintenanceRepository.save(proxima);
+
+        maintenance.setNextGenerated(true);
+        maintenanceRepository.save(maintenance);
     }
 }
